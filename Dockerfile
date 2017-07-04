@@ -7,13 +7,12 @@ ENV credentialFile credentials
 ENV root_password root
 
 # Add vpn config file
-ADD $configFile /root/.
-ADD $credentialFile /root/.
-ADD *.pem /root/.
-ADD *.ssh /root/.
-RUN echo root:$root_password | chpasswd
+RUN mkdir /var/openvpn
 
-WORKDIR /root
+VOLUME ["/var/openvpn"]
+
+
+WORKDIR /var/openvpn
 
 # Run OpenVPN
-CMD openvpn --config /root/$configFile --auth-user-pass /root/$credentialFile & echo root:$root_password | chpasswd & /usr/sbin/sshd -D
+CMD echo root:$root_password | chpasswd & openvpn --config /var/openvpn/$configFile --auth-user-pass /var/openvpn/$credentialFile & /usr/sbin/sshd -D
